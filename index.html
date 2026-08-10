@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self'; connect-src 'self'" />
+  <meta name="referrer" content="no-referrer" />
+  <title>SeamForge — Seamless Texture Lab</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <h1>SeamForge</h1>
+          <p>Procedural seamless textures in the browser</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" id="btn-random" class="btn ghost">Randomize</button>
+        <button type="button" id="btn-export" class="btn primary">Export PNG</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="panel controls">
+        <label class="field">
+          <span>Texture</span>
+          <select id="texture-type"></select>
+        </label>
+
+        <label class="field">
+          <span>Resolution</span>
+          <select id="resolution">
+            <option value="256">256 × 256</option>
+            <option value="512" selected>512 × 512</option>
+            <option value="1024">1024 × 1024</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Seed</span>
+          <div class="seed-row">
+            <input type="number" id="seed" value="42" min="0" step="1" />
+            <button type="button" id="btn-seed" class="btn icon" title="New seed">↻</button>
+          </div>
+        </label>
+
+        <div class="field">
+          <span>View</span>
+          <div class="segmented" role="group" aria-label="Preview mode">
+            <button type="button" class="seg active" data-view="1">1×</button>
+            <button type="button" class="seg" data-view="2">2× tile</button>
+            <button type="button" class="seg" data-view="3">3× tile</button>
+          </div>
+        </div>
+
+        <div id="params" class="params"></div>
+
+        <p class="hint" id="texture-hint"></p>
+
+        <section class="fx-section" aria-label="Pixelate">
+          <div class="section-head">
+            <span>Pixelate</span>
+            <label class="toggle">
+              <input type="checkbox" id="pixelate-enabled" />
+              <span>Enabled</span>
+            </label>
+          </div>
+          <div class="fx-body" id="pixelate-body">
+            <label class="field">
+              <span>Block size <em id="pixelate-size-label">8 px</em></span>
+              <input type="range" id="pixelate-size" min="2" max="64" step="1" value="8" />
+            </label>
+          </div>
+        </section>
+
+        <section class="color-section" aria-label="Color overlay">
+          <div class="section-head">
+            <span>Color Overlay</span>
+            <label class="toggle">
+              <input type="checkbox" id="color-enabled" />
+              <span>Enabled</span>
+            </label>
+          </div>
+
+          <div class="color-body" id="color-body">
+            <div class="wheel-wrap">
+              <canvas
+                id="color-wheel"
+                width="180"
+                height="180"
+                role="slider"
+                tabindex="0"
+                aria-label="Color wheel hue and saturation"
+                aria-valuemin="0"
+                aria-valuemax="360"
+                aria-valuenow="28"
+                aria-description="Use arrow keys to adjust hue and saturation. Hold Shift for finer steps."
+              ></canvas>
+              <div class="wheel-cursor" id="wheel-cursor"></div>
+            </div>
+
+            <label class="field">
+              <span>Brightness</span>
+              <input type="range" id="color-value" min="0" max="1" step="0.01" value="0.85" />
+            </label>
+
+            <label class="field">
+              <span>Opacity</span>
+              <input type="range" id="color-opacity" min="0" max="1" step="0.01" value="1" />
+            </label>
+
+            <label class="field">
+              <span>Blend mode</span>
+              <select id="color-blend"></select>
+            </label>
+
+            <div class="color-meta">
+              <label class="swatch-field">
+                <span>Color</span>
+                <input type="color" id="color-picker" value="#d98a3d" title="Pick color" />
+              </label>
+              <label class="hex-field">
+                <span>Hex</span>
+                <input type="text" id="color-hex" value="#d98a3d" maxlength="7" spellcheck="false" autocomplete="off" placeholder="#d98a3d" />
+              </label>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="preview-pane">
+        <div class="preview-frame">
+          <canvas id="preview" width="512" height="512" aria-label="Texture preview"></canvas>
+          <div class="status" id="status" role="status" aria-live="polite">Ready</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

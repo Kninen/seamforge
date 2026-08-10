@@ -30,11 +30,13 @@ import { tvStatic } from "./static.js";
 import { terrain } from "./terrain.js";
 import { crosshatch } from "./crosshatch.js";
 import { spiral } from "./spiral.js";
+import { graphicMotifs } from "./motifs.js";
 
 /** Registry — add new generators here when requested */
 export const generators = [
   swirlIslands,
   spiral,
+  graphicMotifs,
   marble,
   cellular,
   softNoise,

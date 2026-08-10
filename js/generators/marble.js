@@ -9,7 +9,7 @@ export const marble = {
   params: [
     { key: "scale", label: "Scale", type: "range", min: 1, max: 12, step: 1, value: 4 },
     { key: "warp", label: "Warp", type: "range", min: 0, max: 2, step: 0.05, value: 0.85 },
-    { key: "veins", label: "Vein freq", type: "range", min: 1, max: 20, step: 0.5, value: 8 },
+    { key: "veins", label: "Vein freq", type: "range", min: 1, max: 20, step: 1, value: 8 },
     { key: "sharpness", label: "Sharpness", type: "range", min: 0.4, max: 3, step: 0.05, value: 1.4 },
     { key: "octaves", label: "Octaves", type: "range", min: 1, max: 6, step: 1, value: 4 },
   ],
@@ -25,7 +25,9 @@ export const marble = {
         const v = y / size;
         const wx = u + (n1[i] - 0.5) * p.warp;
         const wy = v + (n2[i] - 0.5) * p.warp;
-        const band = Math.sin((wx + wy) * Math.PI * 2 * p.veins);
+        // Integer vein count keeps sin phase matched on wrap
+        const veins = Math.max(1, Math.round(p.veins));
+        const band = Math.sin((wx + wy) * Math.PI * 2 * veins);
         out[i] = band * 0.5 + 0.5;
       }
     }

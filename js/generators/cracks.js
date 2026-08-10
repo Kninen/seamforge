@@ -1,4 +1,4 @@
-import { createBuffer, clamp01 } from "../core/buffer.js";
+import { createBuffer, clamp01, sampleBilinear } from "../core/buffer.js";
 import { voronoiSeamless, perlinNoise2D } from "../core/noise.js";
 import { blend, gaussianBlur, levels, normalize, invert } from "../core/filters.js";
 
@@ -19,17 +19,14 @@ export const cracks = {
     const n1 = perlinNoise2D(size, 3, seed, 3, 0.5);
     const n2 = perlinNoise2D(size, 3, seed + 4, 3, 0.5);
 
-    // Warp the edge field
+    // Warp the edge field with wraparound bilinear sampling (avoids NN seam nicks)
     const warped = createBuffer(size);
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const i = y * size + x;
         const sx = x + (n1[i] - 0.5) * 2 * p.warp;
         const sy = y + (n2[i] - 0.5) * 2 * p.warp;
-        // manual wrap sample of edge
-        const ix = ((Math.floor(sx) % size) + size) % size;
-        const iy = ((Math.floor(sy) % size) + size) % size;
-        warped[i] = edge[iy * size + ix];
+        warped[i] = sampleBilinear(edge, size, sx, sy);
       }
     }
 

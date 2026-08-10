@@ -1,4 +1,4 @@
-import { createBuffer, clamp01 } from "../core/buffer.js";
+import { createBuffer } from "../core/buffer.js";
 import { perlinNoise2D } from "../core/noise.js";
 import { gaussianBlur, levels, normalize } from "../core/filters.js";
 
@@ -18,18 +18,35 @@ export const crosshatch = {
     const n2 = perlinNoise2D(size, 3, seed + 5, 3, 0.5);
     const out = createBuffer(size);
     const layers = p.layers | 0;
-    const angles = [25, -25, 70, -70];
+    // Only torus-periodic diagonals: (x±y) families (45°) + axis-aligned
+    const modes = ["diag1", "diag2", "horiz", "vert"];
 
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const i = y * size + x;
-        let u = x / size + (n1[i] - 0.5) * p.warp * 0.12;
-        let v = y / size + (n2[i] - 0.5) * p.warp * 0.12;
+        const wu = (n1[i] - 0.5) * p.warp * 0.12;
+        const wv = (n2[i] - 0.5) * p.warp * 0.12;
+        // Pixel-space diagonals stay periodic when density is integer
+        const px = x + wu * size;
+        const py = y + wv * size;
         let ink = 0;
         for (let L = 0; L < layers; L++) {
-          const ang = (angles[L] * Math.PI) / 180;
-          const t = u * Math.cos(ang) + v * Math.sin(ang);
-          let f = ((t * p.density) % 1 + 1) % 1;
+          let t;
+          switch (modes[L]) {
+            case "diag1":
+              t = ((px + py) / size) * p.density;
+              break;
+            case "diag2":
+              t = ((px - py) / size) * p.density;
+              break;
+            case "horiz":
+              t = (py / size) * p.density;
+              break;
+            default:
+              t = (px / size) * p.density;
+              break;
+          }
+          let f = ((t % 1) + 1) % 1;
           const d = Math.min(f, 1 - f);
           if (d < p.thickness * 0.5) ink = 1;
         }

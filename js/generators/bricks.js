@@ -8,8 +8,8 @@ export const bricks = {
   name: "Bricks",
   hint: "Seamless brick / tile wall with mortar and per-brick variation.",
   params: [
-    { key: "cols", label: "Columns", type: "range", min: 2, max: 16, step: 1, value: 6 },
-    { key: "rows", label: "Rows", type: "range", min: 2, max: 16, step: 1, value: 8 },
+    { key: "cols", label: "Columns", type: "range", min: 2, max: 16, step: 2, value: 6 },
+    { key: "rows", label: "Rows", type: "range", min: 2, max: 16, step: 2, value: 8 },
     { key: "mortar", label: "Mortar", type: "range", min: 0.02, max: 0.25, step: 0.01, value: 0.08 },
     { key: "offset", label: "Row offset", type: "range", min: 0, max: 1, step: 0.05, value: 0.5 },
     { key: "variation", label: "Brick var.", type: "range", min: 0, max: 1, step: 0.05, value: 0.35 },
@@ -17,8 +17,9 @@ export const bricks = {
     { key: "bevel", label: "Bevel", type: "range", min: 0, max: 0.2, step: 0.01, value: 0.06 },
   ],
   generate(size, seed, p) {
-    const cols = p.cols | 0;
-    const rows = p.rows | 0;
+    // Even rows so running-bond offset parity closes on vertical wrap
+    const cols = Math.max(2, (p.cols | 0) & ~1);
+    const rows = Math.max(2, (p.rows | 0) & ~1);
     const n = perlinNoise2D(size, 10, seed, 3, 0.5);
     const out = createBuffer(size);
     const mortar = p.mortar;
@@ -28,7 +29,7 @@ export const bricks = {
         const v = y / size;
         const row = Math.floor(v * rows);
         const rowF = v * rows - row;
-        const off = (row % 2) * p.offset;
+        const off = (row & 1) * p.offset;
         const u = wrap(x / size + off / cols, 1);
         const col = Math.floor(u * cols);
         const colF = u * cols - col;
@@ -43,8 +44,7 @@ export const bricks = {
         if (inMortar) {
           val = 0.15 + n[y * size + x] * 0.1;
         } else {
-          const tone = 0.45 + hash2(col, row, seed) * p.variation;
-          // Bevel: distance to mortar
+          const tone = 0.45 + hash2(wrap(col, cols), wrap(row, rows), seed) * p.variation;
           const d = Math.min(colF - mortar, 1 - mortar - colF, rowF - mortar, 1 - mortar - rowF);
           const bev = p.bevel > 0 ? clamp01(d / p.bevel) : 1;
           val = tone * (0.65 + 0.35 * bev) + (n[y * size + x] - 0.5) * p.noise;

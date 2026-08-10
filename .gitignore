@@ -4,3 +4,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.tmp
+
+# Local reference pattern packs (not for redistribution)
+/zip/

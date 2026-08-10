@@ -7,7 +7,7 @@ export const checker = {
   name: "Checker",
   hint: "Seamless checkerboard with optional warp and bevel.",
   params: [
-    { key: "cells", label: "Cells", type: "range", min: 2, max: 24, step: 1, value: 8 },
+    { key: "cells", label: "Cells", type: "range", min: 2, max: 24, step: 2, value: 8 },
     { key: "warp", label: "Warp", type: "range", min: 0, max: 1.5, step: 0.05, value: 0 },
     { key: "soft", label: "Softness", type: "range", min: 0, max: 0.4, step: 0.01, value: 0.04 },
     { key: "bevel", label: "Bevel", type: "checkbox", value: false },
@@ -16,7 +16,8 @@ export const checker = {
     const n1 = perlinNoise2D(size, 3, seed, 3, 0.5);
     const n2 = perlinNoise2D(size, 3, seed + 2, 3, 0.5);
     const out = createBuffer(size);
-    const c = p.cells;
+    // Even cell count required for checkerboard parity to tile
+    const c = Math.max(2, (p.cells | 0) & ~1);
 
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
